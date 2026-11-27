@@ -74,7 +74,7 @@ export function Lobby({ onStartNormal, onStartBoss }) {
 
   if(!mode) return (
     <div style={{fontFamily:"'Noto Sans JP',sans-serif",background:"linear-gradient(180deg,#0a0e1a 0%,#080c14 100%)",
-      color:"#e2e8f0",height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+      color:"#e2e8f0",height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
       gap:24,userSelect:"none",position:"relative",overflow:"hidden"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap');
@@ -118,7 +118,7 @@ export function Lobby({ onStartNormal, onStartBoss }) {
 
   return (
     <div style={{fontFamily:"'Noto Sans JP',sans-serif",background:"linear-gradient(180deg,#0a0e1a 0%,#080c14 100%)",
-      color:"#e2e8f0",height:"100vh",display:"flex",flexDirection:"column",position:"relative",overflow:"hidden",userSelect:"none"}}>
+      color:"#e2e8f0",height:"100%",display:"flex",flexDirection:"column",position:"relative",overflow:"hidden",userSelect:"none"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
