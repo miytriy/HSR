@@ -178,7 +178,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
           const {ox,oy}=popOffset(i);
           showDmgPopup(hit.dmg, isCrit, hit.enemyId, elem, ox, oy);
           addTotalDmg(hit.dmg);
-          if(i===0) triggerHitFlash(hit.enemyId);
+          triggerHitFlash(hit.enemyId);
         }, delay);
         delay+=150;
       });
@@ -196,7 +196,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
             showDmgPopup(hit.dmg, isCrit, hit.enemyId, elem, ox, oy);
             addTotalDmg(hit.dmg);
           }
-          if(i===0) triggerHitFlash(Array.isArray(hit)?hit[0].enemyId:hit.enemyId);
+          (Array.isArray(hit)?hit:[hit]).forEach(h=>triggerHitFlash(h.enemyId));
         }, delay);
         delay+=160;
       });
@@ -218,7 +218,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
               const {ox,oy}=popOffset(i);
               showDmgPopup(dmg, isCrit, id, elem, ox, oy);
               addTotalDmg(dmg);
-              if(i===0) triggerHitFlash(id);
+              triggerHitFlash(id);
             }, delay);
             delay+=120;
           }
@@ -262,7 +262,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
             showDmgPopup(hit.dmg, isCrit, hit.enemyId, elem, ox, oy);
             addTotalDmg(hit.dmg);
           }
-          if(i===0) triggerHitFlash(Array.isArray(hit)?hit[0].enemyId:hit.enemyId);
+          (Array.isArray(hit)?hit:[hit]).forEach(h=>triggerHitFlash(h.enemyId));
         }, delay);
         delay+=160;
       });
@@ -476,7 +476,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
     <div style={{
       fontFamily:"'Noto Sans JP',sans-serif",
       background:"linear-gradient(180deg,#0d1420 0%,#0a0f1a 60%,#080c14 100%)",
-      color:"#e2e8f0", height:"100vh", overflow:"hidden",
+      color:"#e2e8f0", height:"100%", overflow:"hidden",
       display:"flex", flexDirection:"column", position:"relative",
       userSelect:"none",
     }}>
@@ -492,6 +492,15 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
           15%{opacity:1;transform:translateX(-50%) scale(1.1);}
           40%{opacity:1;transform:translateX(-50%) scale(1);}
           100%{opacity:0;transform:translateX(-50%) scale(1);}
+        }
+        @keyframes hitShake{
+          0%{transform:translateX(0);filter:brightness(1) sepia(0) saturate(1) hue-rotate(0deg) drop-shadow(0 0 0 rgba(239,68,68,0));}
+          12%{transform:translateX(-9px);filter:brightness(1.5) sepia(1) saturate(8) hue-rotate(-50deg) drop-shadow(0 0 10px #ef4444);}
+          28%{transform:translateX(8px);filter:brightness(1.5) sepia(1) saturate(8) hue-rotate(-50deg) drop-shadow(0 0 10px #ef4444);}
+          44%{transform:translateX(-6px);filter:brightness(1.35) sepia(1) saturate(7) hue-rotate(-50deg) drop-shadow(0 0 8px #ef4444);}
+          60%{transform:translateX(4px);filter:brightness(1.25) sepia(0.8) saturate(5) hue-rotate(-50deg) drop-shadow(0 0 6px #ef4444);}
+          80%{transform:translateX(-2px);filter:brightness(1.1) sepia(0.4) saturate(2) hue-rotate(-20deg) drop-shadow(0 0 3px rgba(239,68,68,0.5));}
+          100%{transform:translateX(0);filter:brightness(1) sepia(0) saturate(1) hue-rotate(0deg) drop-shadow(0 0 0 rgba(239,68,68,0));}
         }
         @keyframes hitFlashAnim{
           0%{background:rgba(239,68,68,0.0);}
@@ -696,7 +705,7 @@ export function NormalBattle({ onBack, diff="Normal", party=["ziran","saki","oum
                   fontSize:"2rem",lineHeight:1,cursor:"pointer",position:"relative",
                   filter:isSel?"drop-shadow(0 0 6px #fcd34d)":isAct?"drop-shadow(0 0 8px #fbbf24)":"none",
                 }}>
-                  {e.icon}
+                  <span key={hitFlash[id]||0} style={{display:"inline-block",animation:isFlashing?"hitShake 0.4s ease-out":"none"}}>{e.icon}</span>
                   {dmgPopups.filter(p=>p.enemyIdx===idx).map(p=>{
                     const ec = ELEM_COLORS[p.elem]||ELEM_COLORS.physical;
                     const isRainbow = p.elem==="other";
