@@ -74,8 +74,8 @@ export function BossBattle({ diff="Normal", party=["ziran","saki","ouma"], onBac
     s=applyPlayerActionBoss(s,charId,actionId);
     const isCrit=Math.random()<(state.chars[charId]?.cr||0); const elemMap={ziran:"quantum",saki:"other",ouma:"wind"}; const elem=elemMap[charId]||"physical";
     startTotalDmg(); let delay=0; const popOffset=(i)=>({ox:Math.round((Math.random()-0.5)*46),oy:-i*34-Math.round(Math.random()*10)});
-    if(charId==="saki"&&actionId==="resonance"&&s.resonanceHits){ s.resonanceHits.forEach((hit,i)=>{ setTimeout(()=>{ const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); if(i===0) triggerHitFlash(hit.targetId); },delay); delay+=150; }); }
-    else if(charId==="ziran"&&(actionId==="skill"||actionId==="ult")&&s.ziranHits){ s.ziranHits.forEach((hit,i)=>{ setTimeout(()=>{ if(Array.isArray(hit)) hit.forEach((h,j)=>{ const{ox,oy}=popOffset(i+j); showDmgPopup(h.dmg,isCrit,h.targetId,elem,ox,oy); addTotalDmg(h.dmg); }); else { const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); } if(i===0) triggerHitFlash(Array.isArray(hit)?hit[0].targetId:hit.targetId); },delay); delay+=160; }); }
+    if(charId==="saki"&&actionId==="resonance"&&s.resonanceHits){ s.resonanceHits.forEach((hit,i)=>{ setTimeout(()=>{ const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); triggerHitFlash(hit.targetId); },delay); delay+=150; }); }
+    else if(charId==="ziran"&&(actionId==="skill"||actionId==="ult")&&s.ziranHits){ s.ziranHits.forEach((hit,i)=>{ setTimeout(()=>{ if(Array.isArray(hit)) hit.forEach((h,j)=>{ const{ox,oy}=popOffset(i+j); showDmgPopup(h.dmg,isCrit,h.targetId,elem,ox,oy); addTotalDmg(h.dmg); }); else { const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); } (Array.isArray(hit)?hit:[hit]).forEach(h=>triggerHitFlash(h.targetId)); },delay); delay+=160; }); }
     else { const bossDmg=Math.max(0,prevBossHp-s.boss.hp); if(bossDmg>0){ setTimeout(()=>{ showDmgPopup(bossDmg,isCrit,BOSS_ID,elem,0,0); addTotalDmg(bossDmg); triggerHitFlash(BOSS_ID); },delay); delay+=120; } if(s.blade){ const bladeDmg=Math.max(0,prevBladeHp-(s.blade?.hp||0)); if(bladeDmg>0){ setTimeout(()=>{ showDmgPopup(bladeDmg,isCrit,BLADE_ID,elem,0,0); addTotalDmg(bladeDmg); triggerHitFlash(BLADE_ID); },delay); } } }
     _finishAction(s);
   };
@@ -88,7 +88,7 @@ export function BossBattle({ diff="Normal", party=["ziran","saki","ouma"], onBac
     s=applyPlayerActionBoss(s,charId,"ult");
     const isCrit=Math.random()<(state.chars[charId]?.cr||0); const elemMap={ziran:"quantum",saki:"other",ouma:"wind"}; const elem=elemMap[charId]||"physical";
     startTotalDmg(); let delay=0; const popOffset=(i)=>({ox:Math.round((Math.random()-0.5)*46),oy:-i*34-Math.round(Math.random()*10)});
-    if(charId==="ziran"&&s.ziranHits){ s.ziranHits.forEach((hit,i)=>{ setTimeout(()=>{ if(Array.isArray(hit)) hit.forEach((h,j)=>{ const{ox,oy}=popOffset(i+j); showDmgPopup(h.dmg,isCrit,h.targetId,elem,ox,oy); addTotalDmg(h.dmg); }); else { const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); } if(i===0) triggerHitFlash(Array.isArray(hit)?hit[0].targetId:hit.targetId); },delay); delay+=160; }); }
+    if(charId==="ziran"&&s.ziranHits){ s.ziranHits.forEach((hit,i)=>{ setTimeout(()=>{ if(Array.isArray(hit)) hit.forEach((h,j)=>{ const{ox,oy}=popOffset(i+j); showDmgPopup(h.dmg,isCrit,h.targetId,elem,ox,oy); addTotalDmg(h.dmg); }); else { const{ox,oy}=popOffset(i); showDmgPopup(hit.dmg,isCrit,hit.targetId,elem,ox,oy); addTotalDmg(hit.dmg); } (Array.isArray(hit)?hit:[hit]).forEach(h=>triggerHitFlash(h.targetId)); },delay); delay+=160; }); }
     else { const bossDmg=Math.max(0,prevBossHp-s.boss.hp); if(bossDmg>0){ setTimeout(()=>{ showDmgPopup(bossDmg,isCrit,BOSS_ID,elem,0,0); addTotalDmg(bossDmg); triggerHitFlash(BOSS_ID); },delay); } if(s.blade){ const bladeDmg=Math.max(0,prevBladeHp-(s.blade?.hp||0)); if(bladeDmg>0){ setTimeout(()=>{ showDmgPopup(bladeDmg,isCrit,BLADE_ID,elem,0,0); addTotalDmg(bladeDmg); triggerHitFlash(BLADE_ID); },delay); } } }
     s.activeId=charId; s.log=addLog(s.log,`▶ ${s.chars[charId].name} の番！（元のターン継続）`,"player"); _finishAction(s,true);
   };
@@ -136,12 +136,21 @@ export function BossBattle({ diff="Normal", party=["ziran","saki","ouma"], onBac
   if(reportOpen) return <BossReport state={state} onClose={closeReport} initialTab={reportTab} initialCharId={reportCharId}/>;
 
   return(
-    <div style={{fontFamily:"'Noto Sans JP',sans-serif",background:"linear-gradient(180deg,#0d1020 0%,#080c14 100%)",color:"#e2e8f0",height:"100vh",overflow:"hidden",display:"flex",flexDirection:"column",position:"relative",userSelect:"none"}}>
+    <div style={{fontFamily:"'Noto Sans JP',sans-serif",background:"linear-gradient(180deg,#0d1020 0%,#080c14 100%)",color:"#e2e8f0",height:"100%",overflow:"hidden",display:"flex",flexDirection:"column",position:"relative",userSelect:"none"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap');
         @keyframes enemyActBoss{0%,100%{opacity:1}50%{opacity:.6}}
         @keyframes warnPulseBoss{0%,100%{opacity:.7}50%{opacity:1}}
         @keyframes futureBlink{0%,100%{opacity:1;box-shadow:0 0 8px #a78bfa88}50%{opacity:0.3;box-shadow:none}}
+        @keyframes hitShake{
+          0%{transform:translateX(0);filter:brightness(1) sepia(0) saturate(1) hue-rotate(0deg) drop-shadow(0 0 0 rgba(239,68,68,0));}
+          12%{transform:translateX(-9px);filter:brightness(1.5) sepia(1) saturate(8) hue-rotate(-50deg) drop-shadow(0 0 10px #ef4444);}
+          28%{transform:translateX(8px);filter:brightness(1.5) sepia(1) saturate(8) hue-rotate(-50deg) drop-shadow(0 0 10px #ef4444);}
+          44%{transform:translateX(-6px);filter:brightness(1.35) sepia(1) saturate(7) hue-rotate(-50deg) drop-shadow(0 0 8px #ef4444);}
+          60%{transform:translateX(4px);filter:brightness(1.25) sepia(0.8) saturate(5) hue-rotate(-50deg) drop-shadow(0 0 6px #ef4444);}
+          80%{transform:translateX(-2px);filter:brightness(1.1) sepia(0.4) saturate(2) hue-rotate(-20deg) drop-shadow(0 0 3px rgba(239,68,68,0.5));}
+          100%{transform:translateX(0);filter:brightness(1) sepia(0) saturate(1) hue-rotate(0deg) drop-shadow(0 0 0 rgba(239,68,68,0));}
+        }
         @keyframes hitFlashAnim{0%{background:rgba(239,68,68,0.0);}20%{background:rgba(239,68,68,0.55);}60%{background:rgba(239,68,68,0.35);}100%{background:rgba(239,68,68,0.0);}}
         @keyframes announceFade{0%{opacity:0;transform:translate(-50%,-50%) scale(0.7);}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05);}25%,75%{opacity:1;}100%{opacity:0;}}
         @keyframes dmgFloat{0%{opacity:0;transform:translateX(-50%) scale(0.7);}15%{opacity:1;transform:translateX(-50%) scale(1.1);}40%{opacity:1;}100%{opacity:0;}}
@@ -205,7 +214,7 @@ export function BossBattle({ diff="Normal", party=["ziran","saki","ouma"], onBac
                 <div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{boss.debuffs.map((d,i)=><span key={i} style={{fontSize:"0.42rem",background:"rgba(239,68,68,0.2)",color:"#fca5a5",padding:"0 4px",borderRadius:3}}>{d.label}{d.turns}T</span>)}{boss.dmgUpPerFrozen>0&&<span style={{fontSize:"0.42rem",background:"rgba(96,165,250,0.2)",color:"#93c5fd",padding:"0 4px",borderRadius:3}}>凍結強化×{boss.dmgUpPerFrozen}</span>}</div>
               </div>
               <div style={{fontSize:"3.5rem",lineHeight:1,position:"relative",filter:activeId===BOSS_ID?"drop-shadow(0 0 12px #93c5fd)":boss.charged?"drop-shadow(0 0 20px #3b82f6)":"none",animation:activeId===BOSS_ID?"enemyActBoss 0.6s ease-in-out infinite":"none"}}>
-                {boss.icon}
+                <span key={hitFlash[BOSS_ID]||0} style={{display:"inline-block",animation:hitFlash[BOSS_ID]?"hitShake 0.4s ease-out":"none"}}>{boss.icon}</span>
                 {dmgPopups.filter(p=>p.targetId===BOSS_ID).map(p=>{ const ec2=ELEM_COLORS[p.elem]||ELEM_COLORS.physical; const isRainbow=p.elem==="other"; const rainbowGrad=p.isCrit?"linear-gradient(135deg,#ff0000,#ff7700,#ffff00,#00ff00,#00bfff,#8000ff,#ff00ff)":"linear-gradient(135deg,#7f0000,#7f3b00,#7f7f00,#007f00,#005f7f,#40007f,#7f007f)"; return(<div key={p.id} style={{position:"absolute",left:`calc(50% + ${p.offsetX||0}px)`,top:`calc(50% + ${p.offsetY||0}px)`,transform:"translateX(-50%) translateY(-50%)",pointerEvents:"none",zIndex:50,animation:"dmgFloat 2.2s ease-out forwards",textAlign:"center",whiteSpace:"nowrap"}}>{p.isCrit&&<div style={{fontSize:"0.55rem",fontWeight:900,letterSpacing:2,marginBottom:2,...(isRainbow?{background:"linear-gradient(90deg,#ff0000,#ff7700,#ffff00,#00ff00,#00bfff,#8000ff)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}:{color:ec2.crit,textShadow:`0 0 8px ${ec2.crit}`})}}>会心</div>}<div style={{fontFamily:"Rajdhani,sans-serif",fontSize:p.isCrit?"2.2rem":"1.4rem",fontWeight:900,lineHeight:1,...(isRainbow?{background:rainbowGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}:{color:p.isCrit?ec2.crit:ec2.nonCrit,textShadow:p.isCrit?`0 0 20px ${ec2.crit},2px 2px 0 ${ec2.stroke}`:`2px 2px 0 rgba(0,0,0,0.9)`,WebkitTextStroke:`1px ${ec2.stroke}`})}}>{p.value.toLocaleString()}</div></div>); })}
               </div>
             </div>
@@ -220,7 +229,7 @@ export function BossBattle({ diff="Normal", party=["ziran","saki","ouma"], onBac
                 {blade.toughness<=0&&<div style={{fontSize:"0.38rem",color:"#f97316",textAlign:"center"}}>靭性破壊</div>}
               </div>
               <div style={{fontSize:"2.5rem",lineHeight:1,position:"relative",filter:activeId===BLADE_ID?"drop-shadow(0 0 8px #bfdbfe)":"none",animation:activeId===BLADE_ID?"enemyActBoss 0.6s ease-in-out infinite":"none"}}>
-                {blade.icon}
+                <span key={hitFlash[BLADE_ID]||0} style={{display:"inline-block",animation:hitFlash[BLADE_ID]?"hitShake 0.4s ease-out":"none"}}>{blade.icon}</span>
                 {dmgPopups.filter(p=>p.targetId===BLADE_ID).map(p=>{ const ec2=ELEM_COLORS[p.elem]||ELEM_COLORS.physical; return(<div key={p.id} style={{position:"absolute",left:`calc(50% + ${p.offsetX||0}px)`,top:`calc(50% + ${p.offsetY||0}px)`,transform:"translateX(-50%) translateY(-50%)",pointerEvents:"none",zIndex:50,animation:"dmgFloat 2.2s ease-out forwards",textAlign:"center",whiteSpace:"nowrap"}}><div style={{fontFamily:"Rajdhani,sans-serif",fontSize:p.isCrit?"1.8rem":"1.2rem",fontWeight:900,color:p.isCrit?ec2.crit:ec2.nonCrit,lineHeight:1,WebkitTextStroke:`1px ${ec2.stroke}`}}>{p.value.toLocaleString()}</div></div>); })}
               </div>
             </div>
